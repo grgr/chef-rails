@@ -9,6 +9,8 @@ cookbook 'runit'
 cookbook 'ohai'
 cookbook 'git'
 cookbook 'openssl'
+#cookbook 'locales', :git => "https://github.com/optiflows-cookbooks/locales", :ref => "generate_current_locale"
+cookbook 'locale', '~> 1.0.2'
 cookbook 'postgresql'
 cookbook 'redis'
 cookbook 'rvm'
