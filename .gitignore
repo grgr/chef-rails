@@ -1,9 +1,2 @@
-/cookbooks/*
-/data_bags/*.json
-/data_bags/*.rb
-/nodes/*.json
-/nodes/*.rb
-/roles/*.json
-/roles/*.rb
 /tmp/*
 /.vagrant

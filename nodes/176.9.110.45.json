@@ -1,0 +1,167 @@
+{
+  // This is the list of the recipes that are going to be cooked.
+  "run_list": [
+    "recipe[apt]",
+    "recipe[sudo]",
+    "recipe[build-essential]",
+    "recipe[ohai]",
+    "recipe[runit]",
+    "recipe[git]",
+    "recipe[postgresql]",
+    "recipe[postgresql::contrib]",
+    "recipe[postgresql::server]",
+    "recipe[nginx]",
+    "recipe[nginx::apps]",
+    "recipe[redis::install_from_package]",
+    "recipe[redis::client]",
+    "recipe[monit]",
+    "recipe[monit::ssh]",
+    "recipe[monit::nginx]",
+    "recipe[monit::postgresql]",
+    "recipe[monit::redis-server]",
+    "recipe[rvm::user]",
+    "recipe[chef-rails]",
+    "recipe[logrotate]"
+  ],
+
+  "automatic": {
+    "ipaddress": "176.9.110.45"
+  },
+
+  // You must define who’s going to be the user(s) you’re going to use for deploy.
+  "authorization": {
+    "sudo": {
+      "groups"      : ["deploy","vagrant"],
+      "users"       : ["deploy","vagrant"],
+      "passwordless": true
+    }
+  },
+
+  // You must define the password for postgres user.
+  // Leave config block commented untill next cook.
+  "postgresql": {
+    "contrib": {
+      "extensions": ["pg_stat_statements"]
+    },
+    // "config": {
+    //   "shared_buffers": "125MB", // 1/4 of total memory is recommended
+    //   "shared_preload_libraries": "pg_stat_statements"
+    // },
+    "password"      : {
+      "postgres": "postgres4all"
+    }
+  },
+
+  // You must specify the ubuntu distribution by it’s name to configure the proper version
+  // of nginx, otherwise it’s going to fail.
+  "nginx": {
+    "user"          : "deploy",
+    "distribution"  : "trusty",
+    "components"    : ["main"],
+    "worker_rlimit_nofile": 30000,
+
+    // Here you should define all the apps you want nginx to serve for you in the server.
+    "apps": {
+      // Example for an application served by Unicorn server
+      "7.info": {
+        "listen"     : [80],
+        "server_name": "7.info",
+        "public_path": "/home/deploy/production.7.info/current/public",
+        "upstreams"  : [
+          {
+            "name"    : "7.info",
+            "servers" : [
+              "unix:/home/deploy/production.7.info/shared/pids/7.info.sock max_fails=3 fail_timeout=1s"
+            ]
+          }
+        ],
+        "locations": [
+          {
+            "path": "/",
+            "directives": [
+              "proxy_set_header X-Forwarded-Proto $scheme;",
+              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
+              "proxy_set_header X-Real-IP $remote_addr;",
+              "proxy_set_header Host $host;",
+              "proxy_redirect off;",
+              "proxy_http_version 1.1;",
+              "proxy_set_header Connection '';",
+              "proxy_pass http://example.com;"
+            ]
+          },
+          {
+            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
+            "directives": [
+              "gzip_static on;",
+              "expires max;",
+              "add_header Cache-Control public;"
+            ]
+          }
+        ]
+      },
+
+      // gamescom
+      "inside-gamescom-2015": {
+        "listen"     : [80],
+        //"server_name": "7.info",
+        "public_path": "/home/deploy/inside-gamescom-2015/current/public",
+        "upstreams"  : [
+          {
+            "name"    : "gamescom",
+            "servers" : [
+              "unix:/home/deploy/inside-gamescom-2015/shared/pids/inside-gamescom-2015.sock max_fails=3 fail_timeout=1s"
+            ]
+          }
+        ],
+        "locations": [
+          {
+            "path": "/",
+            "directives": [
+              "proxy_set_header X-Forwarded-Proto $scheme;",
+              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
+              "proxy_set_header X-Real-IP $remote_addr;",
+              "proxy_set_header Host $host;",
+              "proxy_redirect off;",
+              "proxy_http_version 1.1;",
+              "proxy_set_header Connection '';",
+              "proxy_pass http://example.com;"
+            ]
+          },
+          {
+            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
+            "directives": [
+              "gzip_static on;",
+              "expires max;",
+              "add_header Cache-Control public;"
+            ]
+          }
+        ]
+      }
+
+    }
+  },
+
+  // The ruby version you’re going to use and rvm user.
+  "rvm" : {
+    "user_installs": [
+      {
+        "user"            : "deploy",
+        "rubies"          : ["ruby-2.0.0-p451", "ruby-2.1.1"],
+        "default_ruby"    : "ruby-2.0.0-p451"
+      }
+    ]
+  },
+
+  // Monit configuration. Sets email, check period and delay since monit service start
+  "monit" : {
+    "notify_email"     : "chrgregor@gmail.com",
+    "poll_period"      : "60",
+    "poll_start_delay" : "120"
+  },
+
+  // Finally, declare all the system packages required by the services and gems you’re using in your apps.
+  // To give you an example: If you’re using paperclip, the native extensions compilation will fail unless you have installed imagemagick declared below.
+  "chef-rails": {
+    "packages": ["imagemagick", "nodejs-dev"]
+  }
+}
