@@ -103,13 +103,50 @@
       // gamescom
       "inside-gamescom-2015": {
         "listen"     : [80],
-        //"server_name": "7.info",
+        "server_name": "gamescom-app.de www.gamescom-app.de",
         "public_path": "/home/deploy/inside-gamescom-2015/current/public",
         "upstreams"  : [
           {
             "name"    : "gamescom",
             "servers" : [
               "unix:/home/deploy/inside-gamescom-2015/shared/pids/inside-gamescom-2015.sock max_fails=3 fail_timeout=1s"
+            ]
+          }
+        ],
+        "locations": [
+          {
+            "path": "/",
+            "directives": [
+              "proxy_set_header X-Forwarded-Proto $scheme;",
+              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
+              "proxy_set_header X-Real-IP $remote_addr;",
+              "proxy_set_header Host $host;",
+              "proxy_redirect off;",
+              "proxy_http_version 1.1;",
+              "proxy_set_header Connection '';",
+              "proxy_pass http://example.com;"
+            ]
+          },
+          {
+            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
+            "directives": [
+              "gzip_static on;",
+              "expires max;",
+              "add_header Cache-Control public;"
+            ]
+          }
+        ]
+      },
+
+      "inside-artbasel-2015": {
+        "listen"     : [80],
+        "server_name": "art-2015.insidetradeshow.com",
+        "public_path": "/home/deploy/inside-artbasel-2015/current/public",
+        "upstreams"  : [
+          {
+            "name"    : "artbasel",
+            "servers" : [
+              "unix:/home/deploy/inside-artbasel-2015/shared/pids/inside-artbasel-2015.sock max_fails=3 fail_timeout=1s"
             ]
           }
         ],
