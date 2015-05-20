@@ -21,6 +21,8 @@
     "recipe[monit::redis-server]",
     "recipe[rvm::user]",
     "recipe[chef-rails]",
+    "recipe[memcached]",
+    "recipe[sendmail]",
     "recipe[logrotate]"
   ],
 
@@ -137,7 +139,7 @@
             ]
           },
           {
-            "path": "~ ^/files/",
+            "path": "~ ^/(files|cgi-bin)/",
             "directives": [
               "deny all;" 
             ]
