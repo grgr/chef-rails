@@ -105,7 +105,7 @@
       // gamescom
       "inside-gamescom-2015": {
         "listen"     : [80],
-        "server_name": "gamescom-app.de www.gamescom-app.de",
+        "server_name": "gamescom-app.de www.gamescom-app.de marketplace.gamescom-app.de www.marketplace.gamescom-app.de",
         "public_path": "/home/deploy/inside-gamescom-2015/current/public",
         "try_files"  : ["$uri", "@gamescom"],
         "upstreams"  : [
