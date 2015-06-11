@@ -10,7 +10,8 @@ configure_flags = [
   "--prefix=#{node[:nginx][:install_path]}",
   "--conf-path=#{node[:nginx][:dir]}/nginx.conf",
   "--with-http_ssl_module",
-  "--with-http_gzip_static_module"
+  "--with-http_gzip_static_module",
+  "--add-module=../nginx-push-stream-module"
 ].join(" ")
 
 remote_file "/usr/local/src/nginx-#{node[:nginx][:version]}.tar.gz" do
@@ -22,6 +23,9 @@ service "nginx"
 bash "compile_nginx_source" do
   cwd "/usr/local/src"
   code <<-EOH
+    git clone http://github.com/wandenberg/nginx-push-stream-module.git
+    NGINX_PUSH_STREAM_MODULE_PATH=$PWD/nginx-push-stream-module
+
     tar zxf nginx-#{node[:nginx][:version]}.tar.gz
     cd nginx-#{node[:nginx][:version]} && ./configure #{configure_flags}
     make && make install
