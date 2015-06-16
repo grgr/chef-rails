@@ -106,7 +106,7 @@
       // staging
       "staging": {
         "listen"     : [80],
-        "server_name": "staging.insideenterprises.com",
+        "server_name": "staging.insidetradeshow.com",
         "public_path": "/home/deploy/staging/current/public",
         "try_files"  : ["$uri", "@staging"],
         "upstreams"  : [
@@ -274,7 +274,7 @@
 
       "inside-congrexmedart-2015": {
         "listen"     : [80],
-        "server_name": "http://medart-2015.insideconference.com",
+        "server_name": "medart-2015.insideconference.com",
         "public_path": "/home/deploy/inside-congrexmedart-2015/current/public",
         "try_files"  : ["$uri", "@congrexmedart"],
         "upstreams"  : [
