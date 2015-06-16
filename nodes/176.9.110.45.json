@@ -102,6 +102,52 @@
         ]
       },
 
+      // staging
+      "staging": {
+        "listen"     : [80],
+        "server_name": "staging.insideenterprises.com",
+        "public_path": "/home/deploy/staging/current/public",
+        "try_files"  : ["$uri", "@staging"],
+        "upstreams"  : [
+          {
+            "name"    : "staging",
+            "servers" : [
+              "unix:/home/deploy/staging/shared/tmp/sockets/staging.sock max_fails=3 fail_timeout=1s"
+            ]
+          }
+        ],
+        "locations": [
+          {
+            "path": "@staging",
+            "directives": [
+              "proxy_set_header X-Forwarded-Proto $scheme;",
+              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
+              "proxy_set_header X-Real-IP $remote_addr;",
+              "proxy_set_header Host $host;",
+              "proxy_redirect off;",
+              "proxy_http_version 1.1;",
+              "proxy_set_header Connection '';",
+              "proxy_pass  http://staging;"
+            ]
+          },
+          {
+            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
+            "directives": [
+              "gzip_static on;",
+              "expires max;",
+              "add_header Cache-Control public;"
+            ]
+          },
+          {
+            "path": "~ ^/(files|cgi-bin)/",
+            "directives": [
+              "deny all;" 
+            ]
+          }
+
+        ]
+      },
+
       // gamescom
       "inside-gamescom-2015": {
         "listen"     : [80],
