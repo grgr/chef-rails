@@ -274,7 +274,7 @@
 
       "inside-congrexmedart-2015": {
         "listen"     : [80],
-        "server_name": "medart-2015.insideconference.com",
+        "server_name": "medart-2015.insideconference.com medart.ins1.de",
         "public_path": "/home/deploy/inside-congrexmedart-2015/current/public",
         "try_files"  : ["$uri", "@congrexmedart"],
         "upstreams"  : [
