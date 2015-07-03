@@ -271,6 +271,44 @@
         ]
       },
 
+      "inside-unispitalbasel-2014": {
+        "listen"     : [80],
+        "server_name": "usb.insidefacility.com",
+        "public_path": "/home/deploy/inside-unispitalbasel-2014/current/public",
+        "try_files"  : ["$uri", "@unispitalbasel"],
+        "upstreams"  : [
+          {
+            "name"    : "unispitalbasel",
+            "servers" : [
+              "unix:/home/deploy/inside-unispitalbasel-2014/shared/tmp/sockets/inside-unispitalbasel-2014.sock max_fails=3 fail_timeout=1s"
+            ]
+          }
+        ],
+        "locations": [
+          {
+            "path": "@unispitalbasel",
+            "directives": [
+              "proxy_set_header X-Forwarded-Proto $scheme;",
+              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
+              "proxy_set_header X-Real-IP $remote_addr;",
+              "proxy_set_header Host $host;",
+              "proxy_redirect off;",
+              "proxy_http_version 1.1;",
+              "proxy_set_header Connection '';",
+              "proxy_pass http://unispitalbasel;"
+            ]
+          },
+          {
+            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
+            "directives": [
+              "gzip_static on;",
+              "expires max;",
+              "add_header Cache-Control public;"
+            ]
+          }
+        ]
+      },
+
 
       "inside-congrexmedart-2015": {
         "listen"     : [80],
