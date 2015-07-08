@@ -312,7 +312,7 @@
 
       "inside-igeho-2015": {
         "listen"     : [80],
-        "server_name": "igeho-2015.insideguidance.com www.igeho-2015.insideguidance.com",
+        "server_name": "igeho-2015.insidetradeshow.com www.igeho-2015.insidetradeshow.com",
         "public_path": "/home/deploy/inside-igeho-2015/current/public",
         "try_files"  : ["$uri", "@igeho"],
         "upstreams"  : [
