@@ -273,7 +273,7 @@
 
       "inside-unispitalbasel-2014": {
         "listen"     : [80],
-        "server_name": "usb.insidefacility.com",
+        "server_name": "usb.insidefacility.com www.usb.insidefacility.com",
         "public_path": "/home/deploy/inside-unispitalbasel-2014/current/public",
         "try_files"  : ["$uri", "@unispitalbasel"],
         "upstreams"  : [
@@ -296,6 +296,45 @@
               "proxy_http_version 1.1;",
               "proxy_set_header Connection '';",
               "proxy_pass http://unispitalbasel;"
+            ]
+          },
+          {
+            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
+            "directives": [
+              "gzip_static on;",
+              "expires max;",
+              "add_header Cache-Control public;"
+            ]
+          }
+        ]
+      },
+
+
+      "inside-igeho-2015": {
+        "listen"     : [80],
+        "server_name": "igeho-2015.insideguidance.com www.igeho-2015.insideguidance.com",
+        "public_path": "/home/deploy/inside-igeho-2015/current/public",
+        "try_files"  : ["$uri", "@igeho"],
+        "upstreams"  : [
+          {
+            "name"    : "igeho",
+            "servers" : [
+              "unix:/home/deploy/inside-igeho-2015/shared/tmp/sockets/inside-igeho-2015.sock max_fails=3 fail_timeout=1s"
+            ]
+          }
+        ],
+        "locations": [
+          {
+            "path": "@igeho",
+            "directives": [
+              "proxy_set_header X-Forwarded-Proto $scheme;",
+              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
+              "proxy_set_header X-Real-IP $remote_addr;",
+              "proxy_set_header Host $host;",
+              "proxy_redirect off;",
+              "proxy_http_version 1.1;",
+              "proxy_set_header Connection '';",
+              "proxy_pass http://igeho;"
             ]
           },
           {
