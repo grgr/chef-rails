@@ -142,7 +142,7 @@
           {
             "path": "~ ^/(files|cgi-bin)/",
             "directives": [
-              "deny all;" 
+              "deny all;"
             ]
           }
 
@@ -188,7 +188,7 @@
           {
             "path": "~ ^/(files|cgi-bin)/",
             "directives": [
-              "deny all;" 
+              "deny all;"
             ]
           }
 
@@ -348,7 +348,54 @@
         ]
       },
 
+      // btag
+      "inside-sbvbtga-2015": {
+        "listen"     : [80],
+        "server_name": "btga-2015.insidetradeshow.com www.btga-2015.insidetradeshow.com",
+        "public_path": "/home/deploy/inside-sbvbtga-2015/current/public",
+        "try_files"  : ["$uri", "@sbvbtga"],
+        "upstreams"  : [
+          {
+            "name"    : "sbvbtga",
+            "servers" : [
+              "unix:/home/deploy/inside-sbvbtga-2015/shared/tmp/sockets/inside-sbvbtga-2015.sock max_fails=3 fail_timeout=1s"
+            ]
+          }
+        ],
+        "locations": [
+          {
+            "path": "@sbvbtga",
+            "directives": [
+              "proxy_set_header X-Forwarded-Proto $scheme;",
+              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
+              "proxy_set_header X-Real-IP $remote_addr;",
+              "proxy_set_header Host $host;",
+              "proxy_redirect off;",
+              "proxy_http_version 1.1;",
+              "proxy_set_header Connection '';",
+              "proxy_pass  http://sbvbtga;"
+            ]
+          },
+          {
+            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
+            "directives": [
+              "gzip_static on;",
+              "expires max;",
+              "add_header Cache-Control public;"
+            ]
+          },
+          {
+            "path": "~ ^/(files|cgi-bin)/",
+            "directives": [
+              "deny all;"
+            ]
+          }
 
+        ]
+      },
+
+
+      // medArt
       "inside-congrexmedart-2015": {
         "listen"     : [80],
         "server_name": "medart-2015.insideconference.com medart.ins1.de",
