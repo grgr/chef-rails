@@ -397,7 +397,7 @@
       // btag
       "inside-sbvbtga-2015": {
         "listen"     : [80],
-        "server_name": "btga-2015.insidetradeshow.com www.btga-2015.insidetradeshow.com",
+        "server_name": "btga-lieferantenverzeichnis.de www.btga-lieferantenverzeichnis.de btga-2015.insidetradeshow.com www.btga-2015.insidetradeshow.com",
         "public_path": "/home/deploy/inside-sbvbtga-2015/current/public",
         "try_files"  : ["$uri", "@sbvbtga"],
         "upstreams"  : [
