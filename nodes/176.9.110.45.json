@@ -25,6 +25,7 @@
     "recipe[memcached]",
     "recipe[sendmail]",
     "recipe[logrotate]"
+    //"recipe[ufw::default]"
   ],
 
   "automatic": {
@@ -39,6 +40,30 @@
       "passwordless": true
     }
   },
+
+
+  //"firewall" : {
+    //"rules" : [
+      //{"http" : {
+         //"port" : "80"
+        //}
+      //},
+      //{"http" : {
+         //"port" : "443"
+        //}
+      //},
+      //{"ssh" : {
+         //"port" : "22"
+        //}
+      //},
+      //{"allow to tcp port 5432 (postgres) from 136.243.51.136" : {
+        //"port" : "5432",
+        //"source" : "136.243.51.136/32",
+        //"protocol" : "tcp" 
+        //}
+      //}
+    //]
+  //},   
 
   // You must define the password for postgres user.
   // Leave config block commented untill next cook.
@@ -282,6 +307,82 @@
         ]
       },
 
+      "inside-baselworld-2016": {
+        "listen"     : [80],
+        "server_name": "baselworld-2016.insidetradeshow.com www.baselworld-2016.insidetradeshow.com",
+        "public_path": "/home/deploy/inside-baselworld-2016/current/public",
+        "try_files"  : ["$uri", "@baselworld"],
+        "upstreams"  : [
+          {
+            "name"    : "baselworld",
+            "servers" : [
+              "unix:/home/deploy/inside-baselworld-2016/shared/tmp/sockets/inside-baselworld-2016.sock max_fails=3 fail_timeout=1s"
+            ]
+          }
+        ],
+        "locations": [
+          {
+            "path": "@baselworld",
+            "directives": [
+              "proxy_set_header X-Forwarded-Proto $scheme;",
+              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
+              "proxy_set_header X-Real-IP $remote_addr;",
+              "proxy_set_header Host $host;",
+              "proxy_redirect off;",
+              "proxy_http_version 1.1;",
+              "proxy_set_header Connection '';",
+              "proxy_pass http://baselworld;"
+            ]
+          },
+          {
+            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
+            "directives": [
+              "gzip_static on;",
+              "expires max;",
+              "add_header Cache-Control public;"
+            ]
+          }
+        ]
+      },
+
+      "inside-swissbau-2016": {
+        "listen"     : [80],
+        "server_name": "swissbau-2016.insidetradeshow.com www.swissbau-2016.insidetradeshow.com",
+        "public_path": "/home/deploy/inside-swissbau-2016/current/public",
+        "try_files"  : ["$uri", "@swissbau"],
+        "upstreams"  : [
+          {
+            "name"    : "swissbau",
+            "servers" : [
+              "unix:/home/deploy/inside-swissbau-2016/shared/tmp/sockets/inside-swissbau-2016.sock max_fails=3 fail_timeout=1s"
+            ]
+          }
+        ],
+        "locations": [
+          {
+            "path": "@swissbau",
+            "directives": [
+              "proxy_set_header X-Forwarded-Proto $scheme;",
+              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
+              "proxy_set_header X-Real-IP $remote_addr;",
+              "proxy_set_header Host $host;",
+              "proxy_redirect off;",
+              "proxy_http_version 1.1;",
+              "proxy_set_header Connection '';",
+              "proxy_pass http://swissbau;"
+            ]
+          },
+          {
+            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
+            "directives": [
+              "gzip_static on;",
+              "expires max;",
+              "add_header Cache-Control public;"
+            ]
+          }
+        ]
+      },
+
       "inside-artbasel-2015": {
         "listen"     : [80],
         "server_name": "art.insideguidance.com art-2015.insidetradeshow.com art.ins1.de",
@@ -357,7 +458,6 @@
           }
         ]
       },
-
 
       "inside-jlmexporeal-2015": {
         "listen"     : [80],
