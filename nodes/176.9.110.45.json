@@ -358,7 +358,7 @@
 
       "inside-jlmexporeal-2015": {
         "listen"     : [80],
-        "server_name": "exporeal-2015.insideguidance.com www.exporeal-2015.insideguidance.com",
+        "server_name": "exporeal-2015.insidetradeshow.com www.exporeal-2015.insidetradeshow.com",
         "public_path": "/home/deploy/inside-jlmexporeal-2015/current/public",
         "try_files"  : ["$uri", "@jlmexporeal"],
         "upstreams"  : [
