@@ -52,7 +52,28 @@
     // },
     "password"      : {
       "postgres": "postgres4all"
+    },
+    "pg_hba": [
+      { "type": "local", "db": "all", "user": "postgres", "addr": null, "method": "ident" },
+      {"type": "local", "db": "all", "user": "all", "addr": null, "method": "ident"},
+      {"type": "host", "db": "all", "user": "all", "addr": "127.0.0.1/32", "method": "md5"},
+      {"type": "host", "db": "all", "user": "all", "addr": "::1/128", "method": "md5"},
+      // the following line allows connections from 136.243.51.136. Remove it and the comma on the line before
+      {"type": "host", "db": "all", "user": "all", "addr": "136.243.51.136/32", "method": "md5"}
+    ],
+    "config": {
+      // open for remote access:
+      "listen_addresses": "*"
+      // else:
+      //"listen_addresses": "localhost"
     }
+  },
+
+  //{"type": "host", "db": "all", "user": "all", "addr": "\"\"1/128", "method": "md5"},
+  // open for remote access:
+  // save memcached against the world: listen only to localhost
+  "memcached": {
+    "listen" : "127.0.0.1"
   },
 
   // You must specify the ubuntu distribution by it’s name to configure the proper version
@@ -65,44 +86,6 @@
 
     // Here you should define all the apps you want nginx to serve for you in the server.
     "apps": {
-      // Example for an application served by Unicorn server
-      "7.info": {
-        "listen"     : [80],
-        "server_name": "7.info",
-        "public_path": "/home/deploy/production.7.info/current/public",
-        "upstreams"  : [
-          {
-            "name"    : "7.info",
-            "servers" : [
-              "unix:/home/deploy/production.7.info/shared/pids/7.info.sock max_fails=3 fail_timeout=1s"
-            ]
-          }
-        ],
-        "locations": [
-          {
-            "path": "/",
-            "directives": [
-              "proxy_set_header X-Forwarded-Proto $scheme;",
-              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
-              "proxy_set_header X-Real-IP $remote_addr;",
-              "proxy_set_header Host $host;",
-              "proxy_redirect off;",
-              "proxy_http_version 1.1;",
-              "proxy_set_header Connection '';",
-              "proxy_pass http://example.com;"
-            ]
-          },
-          {
-            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
-            "directives": [
-              "gzip_static on;",
-              "expires max;",
-              "add_header Cache-Control public;"
-            ]
-          }
-        ]
-      },
-
       // staging
       "staging": {
         "listen"     : [80],
@@ -201,6 +184,16 @@
         "server_name": "gamescom-app.de www.gamescom-app.de",
         "public_path": "/home/deploy/inside-gamescom-2015/current/public",
         "try_files"  : ["$uri", "@gamescom-ssl"],
+        "custom_directives": [
+          "ssl on;",
+          "ssl_certificate /etc/nginx/ssl/gamescom.de.combined.crt;",
+          "ssl_certificate_key /etc/nginx/ssl/gamescom.de.key;",
+          //"ssl_session_cache shared:SSL:10m;",
+          "ssl_protocols TLSv1.2 TLSv1.1 TLSv1;",
+          "ssl_ciphers 'HIGH:!aNULL:!MD5 or HIGH:!aNULL:!MD5:!3DES';",
+          "ssl_prefer_server_ciphers on;",
+          "ssl_session_timeout 10m;"
+        ],
         "upstreams"  : [
           {
             "name"    : "gamescom-ssl",
@@ -246,6 +239,16 @@
         "server_name": "art.insideguidance.com",
         "public_path": "/home/deploy/inside-artbasel-2015/current/public",
         "try_files"  : ["$uri", "@artbasel-ssl"],
+        "custom_directives": [
+          "ssl on;",
+          "ssl_certificate /etc/nginx/ssl/wildcard.insideguidance.com.combined.crt;",
+          "ssl_certificate_key /etc/nginx/ssl/server.key;",
+          //"ssl_session_cache shared:SSL:10m;",
+          "ssl_protocols TLSv1.2 TLSv1.1 TLSv1;",
+          "ssl_ciphers 'HIGH:!aNULL:!MD5 or HIGH:!aNULL:!MD5:!3DES';",
+          "ssl_prefer_server_ciphers on;",
+          "ssl_session_timeout 10m;"
+        ],
         "upstreams"  : [
           {
             "name"    : "artbasel-ssl",
