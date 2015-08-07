@@ -40,7 +40,7 @@ attribute 'memcached/user',
 attribute 'memcached/listen',
           :display_name => 'Memcached IP Address',
           :description  => 'IP address to use for memcached instance',
-          :default      => '127.0.0.1'
+          :default      => '0.0.0.0'
 
 attribute 'memcached/logfilename',
           :display_name => 'Memcached logfilename',
