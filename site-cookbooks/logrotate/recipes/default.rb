@@ -36,8 +36,8 @@ end
 
 logrotate_app 'rails-apps' do
   cookbook  'logrotate'
-  path      '/home/deploy/production.*/shared/logs/*.log'
+  path      '/home/deploy/inside-*/shared/log/*.log'
   frequency 'daily'
   rotate    30
-  create    '644 deploy vagrant'
+  create    '644 deploy deploy'
 end
