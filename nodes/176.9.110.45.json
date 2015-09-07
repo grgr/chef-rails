@@ -112,7 +112,7 @@
 
     // Here you should define all the apps you want nginx to serve for you in the server.
     "apps": {
-      "staging": {
+      "inside-staging": {
         "ssl": false,
         "server_name": "staging.insidetradeshow.com"
       },
@@ -120,15 +120,15 @@
       "inside-gamescom-2015": {
         "ssl" : true,
         "server_name": "gamescom-app.de www.gamescom-app.de",
-        "ssl_certificate": "/etc/nginx/ssl/gamescom.de.combined.crt;",
-        "ssl_certificate_key": "/etc/nginx/ssl/gamescom.de.key;"
+        "ssl_certificate": "/etc/nginx/ssl/gamescom.de.combined.crt",
+        "ssl_certificate_key": "/etc/nginx/ssl/gamescom.de.key"
       },
 
       "inside-artbasel-2015": {
         "ssl": true,
         "server_name": "art.insideguidance.com",
-        "ssl_certificate": "/etc/nginx/ssl/wildcard.insideguidance.com.combined.crt;",
-        "ssl_certificate_key": "/etc/nginx/ssl/server.key;"
+        "ssl_certificate": "/etc/nginx/ssl/wildcard.insideguidance.com.combined.crt",
+        "ssl_certificate_key": "/etc/nginx/ssl/server.key"
       },
 
       "inside-baselworld-2016": {
