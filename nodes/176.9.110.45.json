@@ -13,6 +13,7 @@
     "recipe[nginx]",
     //"recipe[nginx::ssl]",
     "recipe[nginx::apps]",
+    "recipe[add_dir_structure]",
     "recipe[redis::install_from_package]",
     "recipe[redis::client]",
     "recipe[monit]",
@@ -82,9 +83,9 @@
       { "type": "local", "db": "all", "user": "postgres", "addr": null, "method": "ident" },
       {"type": "local", "db": "all", "user": "all", "addr": null, "method": "ident"},
       {"type": "host", "db": "all", "user": "all", "addr": "127.0.0.1/32", "method": "md5"},
-      {"type": "host", "db": "all", "user": "all", "addr": "::1/128", "method": "md5"},
+      {"type": "host", "db": "all", "user": "all", "addr": "::1/128", "method": "md5"}
       // the following line allows connections from 136.243.51.136. Remove it and the comma on the line before
-      {"type": "host", "db": "all", "user": "all", "addr": "136.243.51.136/32", "method": "md5"}
+      //{"type": "host", "db": "all", "user": "all", "addr": "136.243.51.136/32", "method": "md5"}
     ],
     "config": {
       // open for remote access:
@@ -111,515 +112,63 @@
 
     // Here you should define all the apps you want nginx to serve for you in the server.
     "apps": {
-      // staging
       "staging": {
-        "listen"     : [80],
-        "server_name": "staging.insidetradeshow.com",
-        "public_path": "/home/deploy/staging/current/public",
-        "try_files"  : ["$uri", "@staging"],
-        "upstreams"  : [
-          {
-            "name"    : "staging",
-            "servers" : [
-              "unix:/home/deploy/staging/shared/tmp/sockets/staging.sock max_fails=3 fail_timeout=1s"
-            ]
-          }
-        ],
-        "locations": [
-          {
-            "path": "@staging",
-            "directives": [
-              "proxy_set_header X-Forwarded-Proto $scheme;",
-              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
-              "proxy_set_header X-Real-IP $remote_addr;",
-              "proxy_set_header Host $host;",
-              "proxy_redirect off;",
-              "proxy_http_version 1.1;",
-              "proxy_set_header Connection '';",
-              "proxy_pass  http://staging;"
-            ]
-          },
-          {
-            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
-            "directives": [
-              "gzip_static on;",
-              "expires max;",
-              "add_header Cache-Control public;"
-            ]
-          },
-          {
-            "path": "~ ^/(files|cgi-bin)/",
-            "directives": [
-              "deny all;"
-            ]
-          }
-
-        ]
+        "ssl": false,
+        "server_name": "staging.insidetradeshow.com"
       },
 
-      // gamescom
       "inside-gamescom-2015": {
-        "listen"     : [80],
-        "server_name": "gamescom-app.de www.gamescom-app.de marketplace.gamescom-app.de www.marketplace.gamescom-app.de",
-        "public_path": "/home/deploy/inside-gamescom-2015/current/public",
-        "try_files"  : ["$uri", "@gamescom"],
-        "upstreams"  : [
-          {
-            "name"    : "gamescom",
-            "servers" : [
-              "unix:/home/deploy/inside-gamescom-2015/shared/tmp/sockets/inside-gamescom-2015.sock max_fails=3 fail_timeout=1s"
-            ]
-          }
-        ],
-        "locations": [
-          {
-            "path": "@gamescom",
-            "directives": [
-              "proxy_set_header X-Forwarded-Proto $scheme;",
-              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
-              "proxy_set_header X-Real-IP $remote_addr;",
-              "proxy_set_header Host $host;",
-              "proxy_redirect off;",
-              "proxy_http_version 1.1;",
-              "proxy_set_header Connection '';",
-              "proxy_pass  http://gamescom;"
-            ]
-          },
-          {
-            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
-            "directives": [
-              "gzip_static on;",
-              "expires max;",
-              "add_header Cache-Control public;"
-            ]
-          },
-          {
-            "path": "~ ^/(files|cgi-bin)/",
-            "directives": [
-              "deny all;"
-            ]
-          }
-
-        ]
-      },
-
-      // gamescom-ssl
-      "inside-gamescom-2015-ssl": {
-        "listen"     : [443],
+        "ssl" : true,
         "server_name": "gamescom-app.de www.gamescom-app.de",
-        "public_path": "/home/deploy/inside-gamescom-2015/current/public",
-        "try_files"  : ["$uri", "@gamescom-ssl"],
-        "custom_directives": [
-          "ssl on;",
-          "ssl_certificate /etc/nginx/ssl/gamescom.de.combined.crt;",
-          "ssl_certificate_key /etc/nginx/ssl/gamescom.de.key;",
-          //"ssl_session_cache shared:SSL:10m;",
-          "ssl_protocols TLSv1.2 TLSv1.1 TLSv1;",
-          "ssl_ciphers 'HIGH:!aNULL:!MD5 or HIGH:!aNULL:!MD5:!3DES';",
-          "ssl_prefer_server_ciphers on;",
-          "ssl_session_timeout 10m;"
-        ],
-        "upstreams"  : [
-          {
-            "name"    : "gamescom-ssl",
-            "servers" : [
-              "unix:/home/deploy/inside-gamescom-2015/shared/tmp/sockets/inside-gamescom-2015.sock max_fails=3 fail_timeout=1s"
-            ]
-          }
-        ],
-        "locations": [
-          {
-            "path": "@gamescom-ssl",
-            "directives": [
-              "proxy_set_header X-Forwarded-Proto $scheme;",
-              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
-              "proxy_set_header X-Real-IP $remote_addr;",
-              "proxy_set_header Host $host;",
-              "proxy_redirect off;",
-              "proxy_http_version 1.1;",
-              "proxy_set_header Connection '';",
-              "proxy_pass  http://gamescom-ssl;"
-            ]
-          },
-          {
-            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
-            "directives": [
-              "gzip_static on;",
-              "expires max;",
-              "add_header Cache-Control public;"
-            ]
-          },
-          {
-            "path": "~ ^/(files|cgi-bin)/",
-            "directives": [
-              "deny all;"
-            ]
-          }
-
-        ]
-      },
-
-      "inside-artbasel-2015-ssl": {
-        "listen"     : [443],
-        "server_name": "art.insideguidance.com",
-        "public_path": "/home/deploy/inside-artbasel-2015/current/public",
-        "try_files"  : ["$uri", "@artbasel-ssl"],
-        "custom_directives": [
-          "ssl on;",
-          "ssl_certificate /etc/nginx/ssl/wildcard.insideguidance.com.combined.crt;",
-          "ssl_certificate_key /etc/nginx/ssl/server.key;",
-          //"ssl_session_cache shared:SSL:10m;",
-          "ssl_protocols TLSv1.2 TLSv1.1 TLSv1;",
-          "ssl_ciphers 'HIGH:!aNULL:!MD5 or HIGH:!aNULL:!MD5:!3DES';",
-          "ssl_prefer_server_ciphers on;",
-          "ssl_session_timeout 10m;"
-        ],
-        "upstreams"  : [
-          {
-            "name"    : "artbasel-ssl",
-            "servers" : [
-              "unix:/home/deploy/inside-artbasel-2015/shared/tmp/sockets/inside-artbasel-2015.sock max_fails=3 fail_timeout=1s"
-            ]
-          }
-        ],
-        "locations": [
-          {
-            "path": "@artbasel-ssl",
-            "directives": [
-              "proxy_set_header X-Forwarded-Proto $scheme;",
-              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
-              "proxy_set_header X-Real-IP $remote_addr;",
-              "proxy_set_header Host $host;",
-              "proxy_redirect off;",
-              "proxy_http_version 1.1;",
-              "proxy_set_header Connection '';",
-              "proxy_pass http://artbasel-ssl;"
-            ]
-          },
-          {
-            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
-            "directives": [
-              "gzip_static on;",
-              "expires max;",
-              "add_header Cache-Control public;"
-            ]
-          }
-        ]
-      },
-
-      "inside-baselworld-2016": {
-        "listen"     : [80],
-        "server_name": "baselworld-2016.insidetradeshow.com www.baselworld-2016.insidetradeshow.com",
-        "public_path": "/home/deploy/inside-baselworld-2016/current/public",
-        "try_files"  : ["$uri", "@baselworld"],
-        "upstreams"  : [
-          {
-            "name"    : "baselworld",
-            "servers" : [
-              "unix:/home/deploy/inside-baselworld-2016/shared/tmp/sockets/inside-baselworld-2016.sock max_fails=3 fail_timeout=1s"
-            ]
-          }
-        ],
-        "locations": [
-          {
-            "path": "@baselworld",
-            "directives": [
-              "proxy_set_header X-Forwarded-Proto $scheme;",
-              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
-              "proxy_set_header X-Real-IP $remote_addr;",
-              "proxy_set_header Host $host;",
-              "proxy_redirect off;",
-              "proxy_http_version 1.1;",
-              "proxy_set_header Connection '';",
-              "proxy_pass http://baselworld;"
-            ]
-          },
-          {
-            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
-            "directives": [
-              "gzip_static on;",
-              "expires max;",
-              "add_header Cache-Control public;"
-            ]
-          }
-        ]
-      },
-
-      "inside-swissbau-2016": {
-        "listen"     : [80],
-        "server_name": "swissbau-2016.insidetradeshow.com www.swissbau-2016.insidetradeshow.com",
-        "public_path": "/home/deploy/inside-swissbau-2016/current/public",
-        "try_files"  : ["$uri", "@swissbau"],
-        "upstreams"  : [
-          {
-            "name"    : "swissbau",
-            "servers" : [
-              "unix:/home/deploy/inside-swissbau-2016/shared/tmp/sockets/inside-swissbau-2016.sock max_fails=3 fail_timeout=1s"
-            ]
-          }
-        ],
-        "locations": [
-          {
-            "path": "@swissbau",
-            "directives": [
-              "proxy_set_header X-Forwarded-Proto $scheme;",
-              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
-              "proxy_set_header X-Real-IP $remote_addr;",
-              "proxy_set_header Host $host;",
-              "proxy_redirect off;",
-              "proxy_http_version 1.1;",
-              "proxy_set_header Connection '';",
-              "proxy_pass http://swissbau;"
-            ]
-          },
-          {
-            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
-            "directives": [
-              "gzip_static on;",
-              "expires max;",
-              "add_header Cache-Control public;"
-            ]
-          }
-        ]
+        "ssl_certificate": "/etc/nginx/ssl/gamescom.de.combined.crt;",
+        "ssl_certificate_key": "/etc/nginx/ssl/gamescom.de.key;"
       },
 
       "inside-artbasel-2015": {
-        "listen"     : [80],
-        "server_name": "art.insideguidance.com art-2015.insidetradeshow.com art.ins1.de",
-        "public_path": "/home/deploy/inside-artbasel-2015/current/public",
-        "try_files"  : ["$uri", "@artbasel"],
-        "upstreams"  : [
-          {
-            "name"    : "artbasel",
-            "servers" : [
-              "unix:/home/deploy/inside-artbasel-2015/shared/tmp/sockets/inside-artbasel-2015.sock max_fails=3 fail_timeout=1s"
-            ]
-          }
-        ],
-        "locations": [
-          {
-            "path": "@artbasel",
-            "directives": [
-              "proxy_set_header X-Forwarded-Proto $scheme;",
-              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
-              "proxy_set_header X-Real-IP $remote_addr;",
-              "proxy_set_header Host $host;",
-              "proxy_redirect off;",
-              "proxy_http_version 1.1;",
-              "proxy_set_header Connection '';",
-              "proxy_pass http://artbasel;"
-            ]
-          },
-          {
-            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
-            "directives": [
-              "gzip_static on;",
-              "expires max;",
-              "add_header Cache-Control public;"
-            ]
-          }
-        ]
+        "ssl": true,
+        "server_name": "art.insideguidance.com",
+        "ssl_certificate": "/etc/nginx/ssl/wildcard.insideguidance.com.combined.crt;",
+        "ssl_certificate_key": "/etc/nginx/ssl/server.key;"
+      },
+
+      "inside-baselworld-2016": {
+        "ssl"     : false,
+        "server_name": "baselworld-2016.insidetradeshow.com www.baselworld-2016.insidetradeshow.com"
+      },
+
+      "inside-swissbau-2016": {
+        "ssl": false,
+        "server_name": "swissbau-2016.insidetradeshow.com www.swissbau-2016.insidetradeshow.com"
+      },
+
+      "inside-artbasel-2015": {
+        "ssl": false,
+        "server_name": "art.insideguidance.com art-2015.insidetradeshow.com art.ins1.de"
       },
 
       "inside-unispitalbasel-2014": {
-        "listen"     : [80],
-        "server_name": "usb.insidefacility.com www.usb.insidefacility.com",
-        "public_path": "/home/deploy/inside-unispitalbasel-2014/current/public",
-        "try_files"  : ["$uri", "@unispitalbasel"],
-        "upstreams"  : [
-          {
-            "name"    : "unispitalbasel",
-            "servers" : [
-              "unix:/home/deploy/inside-unispitalbasel-2014/shared/tmp/sockets/inside-unispitalbasel-2014.sock max_fails=3 fail_timeout=1s"
-            ]
-          }
-        ],
-        "locations": [
-          {
-            "path": "@unispitalbasel",
-            "directives": [
-              "proxy_set_header X-Forwarded-Proto $scheme;",
-              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
-              "proxy_set_header X-Real-IP $remote_addr;",
-              "proxy_set_header Host $host;",
-              "proxy_redirect off;",
-              "proxy_http_version 1.1;",
-              "proxy_set_header Connection '';",
-              "proxy_pass http://unispitalbasel;"
-            ]
-          },
-          {
-            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
-            "directives": [
-              "gzip_static on;",
-              "expires max;",
-              "add_header Cache-Control public;"
-            ]
-          }
-        ]
+        "ssl": false,
+        "server_name": "usb.insidefacility.com www.usb.insidefacility.com"
       },
 
       "inside-jlmexporeal-2015": {
-        "listen"     : [80],
-        "server_name": "exporeal-2015.insidetradeshow.com www.exporeal-2015.insidetradeshow.com",
-        "public_path": "/home/deploy/inside-jlmexporeal-2015/current/public",
-        "try_files"  : ["$uri", "@jlmexporeal"],
-        "upstreams"  : [
-          {
-            "name"    : "jlmexporeal",
-            "servers" : [
-              "unix:/home/deploy/inside-jlmexporeal-2015/shared/tmp/sockets/inside-jlmexporeal-2015.sock max_fails=3 fail_timeout=1s"
-            ]
-          }
-        ],
-        "locations": [
-          {
-            "path": "@jlmexporeal",
-            "directives": [
-              "proxy_set_header X-Forwarded-Proto $scheme;",
-              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
-              "proxy_set_header X-Real-IP $remote_addr;",
-              "proxy_set_header Host $host;",
-              "proxy_redirect off;",
-              "proxy_http_version 1.1;",
-              "proxy_set_header Connection '';",
-              "proxy_pass http://jlmexporeal;"
-            ]
-          },
-          {
-            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
-            "directives": [
-              "gzip_static on;",
-              "expires max;",
-              "add_header Cache-Control public;"
-            ]
-          }
-        ]
+        "ssl": false,
+        "server_name": "exporeal-2015.insidetradeshow.com www.exporeal-2015.insidetradeshow.com"
       },
-
 
       "inside-igeho-2015": {
-        "listen"     : [80],
-        "server_name": "igeho-2015.insidetradeshow.com www.igeho-2015.insidetradeshow.com",
-        "public_path": "/home/deploy/inside-igeho-2015/current/public",
-        "try_files"  : ["$uri", "@igeho"],
-        "upstreams"  : [
-          {
-            "name"    : "igeho",
-            "servers" : [
-              "unix:/home/deploy/inside-igeho-2015/shared/tmp/sockets/inside-igeho-2015.sock max_fails=3 fail_timeout=1s"
-            ]
-          }
-        ],
-        "locations": [
-          {
-            "path": "@igeho",
-            "directives": [
-              "proxy_set_header X-Forwarded-Proto $scheme;",
-              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
-              "proxy_set_header X-Real-IP $remote_addr;",
-              "proxy_set_header Host $host;",
-              "proxy_redirect off;",
-              "proxy_http_version 1.1;",
-              "proxy_set_header Connection '';",
-              "proxy_pass http://igeho;"
-            ]
-          },
-          {
-            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
-            "directives": [
-              "gzip_static on;",
-              "expires max;",
-              "add_header Cache-Control public;"
-            ]
-          }
-        ]
+        "ssl": false,
+        "server_name": "igeho-2015.insidetradeshow.com www.igeho-2015.insidetradeshow.com"
       },
 
-      // btag
       "inside-sbvbtga-2015": {
-        "listen"     : [80],
-        "server_name": "btga-lieferantenverzeichnis.de www.btga-lieferantenverzeichnis.de btga-2015.insidetradeshow.com www.btga-2015.insidetradeshow.com",
-        "public_path": "/home/deploy/inside-sbvbtga-2015/current/public",
-        "try_files"  : ["$uri", "@sbvbtga"],
-        "upstreams"  : [
-          {
-            "name"    : "sbvbtga",
-            "servers" : [
-              "unix:/home/deploy/inside-sbvbtga-2015/shared/tmp/sockets/inside-sbvbtga-2015.sock max_fails=3 fail_timeout=1s"
-            ]
-          }
-        ],
-        "locations": [
-          {
-            "path": "@sbvbtga",
-            "directives": [
-              "proxy_set_header X-Forwarded-Proto $scheme;",
-              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
-              "proxy_set_header X-Real-IP $remote_addr;",
-              "proxy_set_header Host $host;",
-              "proxy_redirect off;",
-              "proxy_http_version 1.1;",
-              "proxy_set_header Connection '';",
-              "proxy_pass  http://sbvbtga;"
-            ]
-          },
-          {
-            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
-            "directives": [
-              "gzip_static on;",
-              "expires max;",
-              "add_header Cache-Control public;"
-            ]
-          },
-          {
-            "path": "~ ^/(files|cgi-bin)/",
-            "directives": [
-              "deny all;"
-            ]
-          }
-
-        ]
+        "ssl": false,
+        "server_name": "btga-lieferantenverzeichnis.de www.btga-lieferantenverzeichnis.de btga-2015.insidetradeshow.com www.btga-2015.insidetradeshow.com"
       },
 
-
-      // medArt
       "inside-congrexmedart-2015": {
-        "listen"     : [80],
-        "server_name": "medart-2015.insideconference.com medart.ins1.de",
-        "public_path": "/home/deploy/inside-congrexmedart-2015/current/public",
-        "try_files"  : ["$uri", "@congrexmedart"],
-        "upstreams"  : [
-          {
-            "name"    : "congrexmedart",
-            "servers" : [
-              "unix:/home/deploy/inside-congrexmedart-2015/shared/tmp/sockets/inside-congrexmedart-2015.sock max_fails=3 fail_timeout=1s"
-            ]
-          }
-        ],
-        "locations": [
-          {
-            "path": "@congrexmedart",
-            "directives": [
-              "proxy_set_header X-Forwarded-Proto $scheme;",
-              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
-              "proxy_set_header X-Real-IP $remote_addr;",
-              "proxy_set_header Host $host;",
-              "proxy_redirect off;",
-              "proxy_http_version 1.1;",
-              "proxy_set_header Connection '';",
-              "proxy_pass http://congrexmedart;"
-            ]
-          },
-          {
-            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
-            "directives": [
-              "gzip_static on;",
-              "expires max;",
-              "add_header Cache-Control public;"
-            ]
-          }
-        ]
+        "ssl": false,
+        "server_name": "medart-2015.insideconference.com medart.ins1.de"
       }
 
     }
