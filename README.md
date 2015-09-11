@@ -48,10 +48,14 @@ where
 
 If you take a look at the *nodes* folder, you’re going to see files called [host].json, corresponding to the hosts or ips of the servers we previously prepared, plus a file called *localhost.json.example* which is, as its name suggests, and example.
 
-The specs for each server needs to be defined in those files, and the structure is exactly the same as in the example.
+For inside the command is:
 
-For the very same reason, we’re going to exaplain the example for you to ride on your own pony later on.
+```bash
+bundle exec knife solo cook deploy@176.9.110.45.json
+```
 
+Add a new app in the nodes/176.9.110.45.json: See the nginx -> apps section in the following json as examples.
+ 
 ```json
 {
   // This is the list of the recipes that are going to be cooked.
