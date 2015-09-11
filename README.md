@@ -67,6 +67,7 @@ For the very same reason, we’re going to exaplain the example for you to ride 
     "recipe[postgresql::server]",
     "recipe[nginx]",
     "recipe[nginx::apps]",
+    "recipe[add_dir_structure]",
     "recipe[redis::install_from_package]",
     "recipe[redis::client]",
     "recipe[monit]",
@@ -96,14 +97,32 @@ For the very same reason, we’re going to exaplain the example for you to ride 
   "postgresql": {
     "contrib": {
       "extensions": ["pg_stat_statements"]
-    },
+    },  
     // "config": {
-    //   "shared_buffers": "125MB",
+    //   "shared_buffers": "125MB", // 1/4 of total memory is recommended
     //   "shared_preload_libraries": "pg_stat_statements"
     // },
-    "password"      : {
-      "postgres": "<postgres_user_password>"
-    }
+    "password"      : { 
+      "postgres": "postgres4all"
+    },  
+    "pg_hba": [
+      { "type": "local", "db": "all", "user": "postgres", "addr": null, "method": "ident" },
+      {"type": "local", "db": "all", "user": "all", "addr": null, "method": "ident"},
+      {"type": "host", "db": "all", "user": "all", "addr": "127.0.0.1/32", "method": "md5"},
+      {"type": "host", "db": "all", "user": "all", "addr": "::1/128", "method": "md5"}
+      // the following line allows connections from 136.243.51.136. Remove it and the comma on the line before
+      //{"type": "host", "db": "all", "user": "all", "addr": "136.243.51.136/32", "method": "md5"}
+    ],  
+    "config": {
+      // open for remote access:
+      "listen_addresses": "*" 
+      // else:
+      //"listen_addresses": "localhost"
+    }   
+  },  
+
+  "memcached": {
+    "listen" : "127.0.0.1"
   },
 
   // You must specify the ubuntu distribution by it’s name to configure the proper version
@@ -115,83 +134,24 @@ For the very same reason, we’re going to exaplain the example for you to ride 
     "worker_rlimit_nofile": 30000,
 
     // Here you should define all the apps you want nginx to serve for you in the server.
+    //
+    // specify inside apps like the following (for ssl-apps you need to put the certicficates into /etc/nginx/ssl manually):
+    //
     "apps": {
-      // Example for an application served by Unicorn server
-      "example.com": {
-        "listen"     : [80],
-        "server_name": "example.com www.example.com",
-        "public_path": "/home/deploy/production.example.com/current/public",
-        "upstreams"  : [
-          {
-            "name"    : "example.com",
-            "servers" : [
-              "unix:/home/deploy/production.example.com/shared/pids/example.com.sock max_fails=3 fail_timeout=1s"
-            ]
-          }
-        ],
-        "locations": [
-          {
-            "path": "/",
-            "directives": [
-              "proxy_set_header X-Forwarded-Proto $scheme;",
-              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
-              "proxy_set_header X-Real-IP $remote_addr;",
-              "proxy_set_header Host $host;",
-              "proxy_redirect off;",
-              "proxy_http_version 1.1;",
-              "proxy_set_header Connection '';",
-              "proxy_pass http://example.com;"
-            ]
-          },
-          {
-            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
-            "directives": [
-              "gzip_static on;",
-              "expires max;",
-              "add_header Cache-Control public;"
-            ]
-          }
-        ]
+
+      "inside-gamescom-2015": {
+        "ssl" : true,
+        // server_name == domain(s)
+        "server_name": "gamescom-app.de www.gamescom-app.de",
+        "ssl_certificate": "/etc/nginx/ssl/gamescom.de.combined.crt",
+        "ssl_certificate_key": "/etc/nginx/ssl/gamescom.de.key"
       },
 
-      // Example for an application served by Thin server
-      "example2.com": {
-        "listen"     : [80],
-        "server_name": "example2.com www.example2.com",
-        "public_path": "/home/deploy/production.example2.com/current/public",
-        "upstreams"  : [
-          {
-            "name"    : "example2.com",
-            "servers" : [
-              "0.0.0.0:3000 max_fails=3 fail_timeout=1s",
-              "0.0.0.0:3001 max_fails=3 fail_timeout=1s"
-            ]
-          }
-        ],
-        "locations": [
-          {
-            "path": "/",
-            "directives": [
-              "proxy_set_header X-Forwarded-Proto $scheme;",
-              "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;",
-              "proxy_set_header X-Real-IP $remote_addr;",
-              "proxy_set_header Host $host;",
-              "proxy_redirect off;",
-              "proxy_http_version 1.1;",
-              "proxy_set_header Connection '';",
-              "proxy_pass http://example2.com;"
-            ]
-          },
-          {
-            "path": "~ ^/(assets|fonts|system)/|favicon.ico|robots.txt",
-            "directives": [
-              "gzip_static on;",
-              "expires max;",
-              "add_header Cache-Control public;"
-            ]
-          }
-        ]
+      "inside-baselworld-2016": {
+        "ssl"     : false,
+        "server_name": "baselworld-2016.insidetradeshow.com www.baselworld-2016.insidetradeshow.com bsw.ins1.de"
       }
+
     }
   },
 
