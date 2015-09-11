@@ -48,12 +48,6 @@ where
 
 If you take a look at the *nodes* folder, you’re going to see files called [host].json, corresponding to the hosts or ips of the servers we previously prepared, plus a file called *localhost.json.example* which is, as its name suggests, and example.
 
-For inside the command is:
-
-```bash
-bundle exec knife solo cook deploy@176.9.110.45.json
-```
-
 Add a new app in the nodes/176.9.110.45.json: See the nginx -> apps section in the following json as examples.
  
 ```json
@@ -193,6 +187,12 @@ bundle exec knife solo cook [user]@[host] -p [port]
 ```
 
 following the same criteria we defined in step **2**.
+
+For inside the command is:
+
+```bash
+bundle exec knife solo cook deploy@176.9.110.45.json
+```
 
 Remember to clean your kitchen after cook
 
