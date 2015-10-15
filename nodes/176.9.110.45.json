@@ -114,6 +114,7 @@
     "apps": {
       "inside-staging": {
         "ssl": false,
+        "chat": true,
         "server_name": "staging.insidetradeshow.com"
       },
 
