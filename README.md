@@ -221,6 +221,12 @@ exit
 bundle exec knife solo cook [user]@[host] -p [port]
 ```
 
+If sudo won\`t work without password:
+```
+visudo # as root
+deploy ALL=(ALL:ALL) NOPASSWD: ALL
+```
+
 #### After first succesfull cooking
 
 Uncomment the following block in PostgreSQL configuration:
